@@ -1,0 +1,6 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { ChartNoAxesCombined } from "lucide-react";
+import { RevenueChart, SalesChart } from "@/features/dashboard/analytics-charts";
+import { SectionPage } from "@/features/shared/section-page";
+export const Route = createFileRoute("/_authenticated/analytics")({ head: () => ({ meta: [{ title: "Analytics — PulseIQ" }, { name: "description", content: "Explore revenue and sales trends in PulseIQ." }, { property: "og:title", content: "Analytics — PulseIQ" }, { property: "og:description", content: "Explore revenue and sales trends in PulseIQ." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }), component: Analytics });
+function Analytics(){return <SectionPage eyebrow="Analytics" title="Performance intelligence" description="Understand what is moving your business with focused revenue and sales analysis." icon={ChartNoAxesCombined} metrics={[{label:"Net revenue",value:"₹13.8L",detail:"14.2% growth"},{label:"Average order",value:"₹1,934",detail:"5.1% growth"},{label:"Gross margin",value:"64.7%",detail:"2.8 pts higher"}]}><div className="mt-5 grid gap-4 xl:grid-cols-3"><RevenueChart/><SalesChart/></div></SectionPage>}

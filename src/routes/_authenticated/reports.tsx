@@ -1,0 +1,2 @@
+import { createFileRoute } from "@tanstack/react-router"; import { ReportsPage } from "@/features/reports/reports-page";
+export const Route=createFileRoute("/_authenticated/reports")({head:()=>({meta:[{title:"Reports — PulseIQ"},{name:"description",content:"Generate and export PulseIQ business reports."},{property:"og:title",content:"Reports — PulseIQ"},{property:"og:description",content:"Generate and export PulseIQ business reports."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:ReportsPage});

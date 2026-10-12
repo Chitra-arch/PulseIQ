@@ -1,0 +1,26 @@
+import { motion, AnimatePresence } from "framer-motion";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { MoreHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { formatINR, type ChartRange } from "@/lib/dashboard-data";
+import { useBusinessData } from "@/features/data/use-business-data";
+import { useUIStore } from "@/store/ui-store";
+import { fadeUp } from "@/lib/motion";
+
+const ranges: { value: ChartRange; label: string }[] = [{ value: "7d", label: "7 Days" }, { value: "30d", label: "30 Days" }, { value: "90d", label: "3 Months" }, { value: "1y", label: "1 Year" }];
+const tooltipStyle = { background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, boxShadow: "0 12px 30px -15px rgba(0,0,0,.5)" };
+const compactINR = (value: number) => (value >= 100000 ? `₹${Math.round(value / 100000)}L` : value >= 1000 ? `₹${Math.round(value / 1000)}k` : `₹${value}`);
+
+export function RevenueChart() {
+  const range = useUIStore((state) => state.range); const setRange = useUIStore((state) => state.setRange);
+  const { snapshot } = useBusinessData();
+  return <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} data-tour="revenue" className="panel min-w-0 p-5 sm:p-6 xl:col-span-2">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start"><div><h2 className="text-base font-bold">{snapshot.hasExpenses ? "Revenue vs Expenses" : "Revenue"}</h2><p className="mt-1 text-xs text-muted-foreground">Income performance across the selected period</p></div><div className="grid grid-cols-4 rounded-xl bg-muted p-1">{ranges.map((item) => <Button key={item.value} variant={range === item.value ? "secondary" : "ghost"} size="sm" className="h-7 px-2 text-[11px] shadow-none" onClick={() => setRange(item.value)}>{item.label}</Button>)}</div></div>
+    <AnimatePresence mode="wait"><motion.div key={range} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }} className="mt-7 h-[310px] min-w-0"><ResponsiveContainer width="100%" height="100%"><AreaChart data={snapshot.revenueSeries[range]} margin={{ left: -15, right: 4, top: 8, bottom: 0 }}><defs><linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--primary)" stopOpacity={0.28}/><stop offset="100%" stopColor="var(--primary)" stopOpacity={0}/></linearGradient><linearGradient id="expenseFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--warning)" stopOpacity={0.14}/><stop offset="100%" stopColor="var(--warning)" stopOpacity={0}/></linearGradient></defs><CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="3 5"/><XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} dy={10}/><YAxis tickLine={false} axisLine={false} tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} tickFormatter={compactINR}/><Tooltip contentStyle={tooltipStyle} formatter={(value) => formatINR(Number(value))}/><Legend wrapperStyle={{ paddingTop: 18, fontSize: 12 }}/><Area name="Revenue" type="monotone" dataKey="revenue" stroke="var(--primary)" strokeWidth={2.5} fill="url(#revenueFill)" dot={{ r: 2.5, fill: "var(--primary)", strokeWidth: 0 }} activeDot={{ r: 5 }} animationDuration={700}/>{snapshot.hasExpenses && <Area name="Expenses" type="monotone" dataKey="expenses" stroke="var(--warning)" strokeWidth={2} fill="url(#expenseFill)" dot={false} animationDuration={850}/>}</AreaChart></ResponsiveContainer></motion.div></AnimatePresence>
+  </motion.section>;
+}
+
+export function SalesChart() {
+  const { snapshot } = useBusinessData();
+  return <motion.section variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} data-tour="sales" className="panel min-w-0 p-5 sm:p-6"><div className="flex items-start justify-between"><div><h2 className="text-base font-bold">Sales Overview</h2><p className="mt-1 text-xs text-muted-foreground">Orders by month</p></div><Button variant="ghost" size="icon" aria-label="Sales options"><MoreHorizontal /></Button></div><div className="mt-7 h-[310px] min-w-0"><ResponsiveContainer width="100%" height="100%"><BarChart data={snapshot.salesSeries} margin={{ left: -25, right: 0 }} barGap={3}><CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="3 5"/><XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} dy={10}/><YAxis tickLine={false} axisLine={false} tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} allowDecimals={false} tickFormatter={(v: number) => (v >= 1000 ? `${v / 1000}k` : String(v))}/><Tooltip contentStyle={tooltipStyle} cursor={{ fill: "var(--muted)" }}/><Legend wrapperStyle={{ paddingTop: 18, fontSize: 12 }}/><Bar name={snapshot.salesLabels.previous} dataKey="previous" fill="var(--muted-foreground)" opacity={0.35} radius={[4, 4, 0, 0]} animationDuration={650}/><Bar name={snapshot.salesLabels.current} dataKey="current" fill="var(--primary)" radius={[4, 4, 0, 0]} animationDuration={900}/></BarChart></ResponsiveContainer></div></motion.section>;
+}

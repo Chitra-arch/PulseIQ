@@ -2,6 +2,7 @@
 
 A production-quality business analytics dashboard: dark-first premium design, animated KPI cards, interactive revenue/sales charts, realtime transaction feed, PDF/CSV report generation, and full CRUD for customers, products, sales, and reports.
 
+Website Link : https://data-shine-center.lovable.app
 ## Tech stack
 
 - **Framework:** TanStack Start v1 (React 19, SSR, server functions) + Vite
